@@ -54,7 +54,8 @@ namespace Company.Function
             // Replace the document in Cosmos DB
             var response = await container.ReplaceItemAsync(counter, counter.id, new PartitionKey(counter.PartitionKey));
 
-            return new OkObjectResult("replaced successfully");
+            // Return the count value as JSON
+            return new OkObjectResult(new { Count = counter.Count });
         }
 
         private static async Task<Counter> GetCounterById(string id, string partitionKey)

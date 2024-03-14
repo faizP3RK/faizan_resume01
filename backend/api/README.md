@@ -1,4 +1,4 @@
-# Your API lives here
+# API Folder Notes:
 
 ## Added Files and Coded:
 - Added a Counter.cs file

@@ -11,8 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: azure/login@v1
+    - uses: actions/checkout@v4
+    - uses: azure/login@v2
       with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 

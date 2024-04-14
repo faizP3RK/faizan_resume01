@@ -1,8 +1,10 @@
+import config from './config.js';
+
 window.addEventListener('DOMContentLoaded', (event) => {
     getVisitCount();
 })
 
-const functionApiUrl = 'https://getsresumecounter.azurewebsites.net/api/GetResumeCounter?code=VMTxDfkeWqVGp5YFSBiN3tVzx5j0QNHzoLo1LLFg4XOTAzFudvmybg==';
+const functionApiUrl = config.FUNCTION_API_URL;
 const localFunctionApi = 'http://localhost:7071/api/GetResumeCounter';
 
 const getVisitCount = () => {

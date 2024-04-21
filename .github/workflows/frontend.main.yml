@@ -32,7 +32,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-           az cdn endpoint purge --content-paths  "/*" --profile-name "azureresumefaizanshaikh" --name "azureresumefaizanshaikh" --resource-group "faizresume-rg" --overwrite true
+           az cdn endpoint purge --content-paths  "/*" --profile-name "azureresumefaizanshaikh" --name "azureresumefaizanshaikh" --resource-group "faizresume-rg" 
   # Azure logout
     - name: logout
       run: |

@@ -8,6 +8,7 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
+// Test
 namespace Company.Function
 {
     public static class GetResumeCounter
@@ -21,7 +22,7 @@ namespace Company.Function
             ILogger log,
             ExecutionContext context)
         {
-            // Here is where the counter gets updated.
+            // Here is where the counter gets updated 
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             // Load configuration from local.settings.json

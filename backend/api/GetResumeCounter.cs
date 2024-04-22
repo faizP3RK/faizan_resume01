@@ -3,43 +3,72 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Cosmos;
+using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Company.Function
 {
     public static class GetResumeCounter
     {
+        private static CosmosClient cosmosClient;
+        private static Container container;
+
         [FunctionName("GetResumeCounter")]
-        public static async Task<IActionResult> Run(
+        public static async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            [CosmosDB(
-                databaseName: "%CosmosDBDatabase%",
-                containerName: "%CosmosDBContainer%",
-                Connection = "CosmosDBConnection",
-                Id = "1",
-                PartitionKey = "1")] Counter counter,
-            [CosmosDB(
-                databaseName: "%CosmosDBDatabase%",
-                containerName: "%CosmosDBContainer%",
-                Connection = "CosmosDBConnection",
-                Id = "1",
-                PartitionKey = "1")] IAsyncCollector<Counter> counterOutput,
-            ILogger log)
+            ILogger log,
+            ExecutionContext context)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
+
+            // Load configuration from local.settings.json
+            var config = new ConfigurationBuilder()
+                .SetBasePath(context.FunctionAppDirectory)
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            // Get Cosmos DB settings from local.settings.json
+            string cosmosEndpoint = "https://faizresume.documents.azure.com:443/";
+            string cosmosKey = config["CosmosDBKey"];
+            string databaseName = "AzureResume";
+            string containerName = "Counter";
+
+            // Initialize CosmosClient and Container
+            cosmosClient = new CosmosClient(cosmosEndpoint, cosmosKey);
+            container = cosmosClient.GetContainer(databaseName, containerName);
+
+            // Get the document by ID
+            var counter = await GetCounterById("1", "1");
 
             if (counter == null)
             {
                 counter = new Counter { id = "1", PartitionKey = "1", Count = 0 };
             }
 
+            // Update the document
             counter.Count++;
 
-            await counterOutput.AddAsync(counter);
+            // Replace the document in Cosmos DB
+            var response = await container.ReplaceItemAsync(counter, counter.id, new PartitionKey(counter.PartitionKey));
 
+            // Return the count value as JSON
             return new OkObjectResult(new { Count = counter.Count });
         }
-    }
 
-    
+        private static async Task<Counter> GetCounterById(string id, string partitionKey)
+        {
+            try
+            {
+                var response = await container.ReadItemAsync<Counter>(id, new PartitionKey(partitionKey));
+                return response.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+    }
 }

@@ -31,10 +31,10 @@ namespace Company.Function
                 .Build();
 
             // Get Cosmos DB settings from local.settings.json
-            string cosmosEndpoint = "https://faizresume.documents.azure.com:443/";
+            string cosmosEndpoint = config["CosmosDBEndpoint"];
             string cosmosKey = config["CosmosDBKey"];
-            string databaseName = "AzureResume";
-            string containerName = "Counter";
+            string databaseName = config["CosmosDBDatabase"];
+            string containerName = config["CosmosDBContainer"];
 
             // Initialize CosmosClient and Container
             cosmosClient = new CosmosClient(cosmosEndpoint, cosmosKey);
